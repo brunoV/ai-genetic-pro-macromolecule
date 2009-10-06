@@ -24,6 +24,11 @@ sequence that it's passed to it as an argument. Required.
         return $score;
     }
 
+    my $m = AI::Genetic::Pro::Macromolecule->new(
+        fitness => \&fitness,
+        ...
+    );
+
 =cut
 
 has fitness => (
@@ -31,6 +36,61 @@ has fitness => (
    isa => CodeRef,
    required => 1,
 );
+
+=attr terminate
+
+Accepts a CodeRef. It will be applied once at the end of each
+generation. If returns true, evolution will stop, disregarding the
+generation steps passed to the C<evolve> method.
+
+The CodeRef should accept an C<AI::Genetic::Pro::Macromolecule> object
+as argument, and should return either true or false.
+
+    sub terminate {
+        my $m = shift;  # an AI::G::P::Macromolecule object
+
+        my $highest_score = $m->fittest->{score};
+
+        if ( $highest_score > 9000 ) {
+            warn "It's over 9000!";
+            return 1;
+        }
+    }
+
+In the above example, evolution will stop the moment the top score in
+any generation exceeds the value 9000.
+
+=cut
+
+has terminate => (
+   is  => 'ro',
+   isa => CodeRef,
+   predicate => '_has_terminate',
+);
+
+has '_actual_' . $_ => (
+    is => 'ro',
+    isa => CodeRef,
+    lazy_build => 1,
+) for qw(fitness terminate);
+
+sub _build__actual_fitness {
+    my $self = shift;
+
+    return sub {
+        my ($ga, $chromosome) = @_;
+        my $seq = $ga->as_string($chromosome);
+        $seq =~ s/_//g;
+
+        return $self->fitness->($seq);
+    }
+}
+
+sub _build__actual_terminate {
+    my $self = shift;
+
+    return sub { return $self->terminate };
+}
 
 =method evolve
 
@@ -45,6 +105,36 @@ true.
 Returns the current generation number.
 
 =cut
+
+=attr variable_length
+
+Decide whether the sequences can have different lengths. Accepts a Bool
+value. Defaults to 1.
+
+=cut
+
+has variable_length => (
+    is  => 'ro',
+    isa => Bool,
+    default => 1,
+);
+
+=attr length
+
+Manually set the allowed maximum length of the sequences.
+
+This attribute is required unless an initial population is provided. In
+that case, C<length> will be set as equal to the length of the longest
+sequence provided if it's not explicity specified.
+
+=cut
+
+has length => (
+    is  => 'ro',
+    isa => Num,
+    lazy_build => 1,
+);
+
 
 has _ga => (
     is  => 'ro',
@@ -242,22 +332,6 @@ sub _build__alphabet {
     return $alphabet_for{ lc($self->type) };
 }
 
-=attr length
-
-Manually set the allowed maximum length of the sequences.
-
-This attribute is required unless an initial population is provided. In
-that case, C<length> will be set as equal to the length of the longest
-sequence provided if it's not explicity specified.
-
-=cut
-
-has length => (
-    is  => 'ro',
-    isa => Num,
-    lazy_build => 1,
-);
-
 sub _build_length {
     my $self = shift;
 
@@ -412,74 +486,6 @@ has preserve => (
    is  => 'ro',
    isa => Int,
    default => '5',
-);
-
-=attr terminate
-
-Accepts a CodeRef. It will be applied once at the end of each
-generation. If returns true, evolution will stop, disregarding the
-generation steps passed to the C<evolve> method.
-
-It accepts an C<AI::Genetic::Pro::Macromolecule> object as argument, and
-should return either true or false.
-
-    sub terminate {
-        my $m = shift;  # an AI::G::P::Macromolecule object
-
-        my $highest_score = $m->fittest->{score};
-
-        if ( $highest_score > 9000 ) {
-            warn "It's over 9000!";
-            return 1;
-        }
-    }
-
-In the above example, evolution will stop the moment the top score in
-any generation exceeds the value 9000.
-
-=cut
-
-has terminate => (
-   is  => 'ro',
-   isa => CodeRef,
-   predicate => '_has_terminate',
-);
-
-has '_actual_' . $_ => (
-    is => 'ro',
-    isa => CodeRef,
-    lazy_build => 1,
-) for qw(fitness terminate);
-
-sub _build__actual_fitness {
-    my $self = shift;
-
-    return sub {
-        my ($ga, $chromosome) = @_;
-        my $seq = $ga->as_string($chromosome);
-        $seq =~ s/_//g;
-
-        return $self->fitness->($seq);
-    }
-}
-
-sub _build__actual_terminate {
-    my $self = shift;
-
-    return sub { return $self->terminate };
-}
-
-=attr variable_length
-
-Decide whether the sequences can have different lengths. Accepts a Bool
-value. Defaults to 1.
-
-=cut
-
-has variable_length => (
-    is  => 'ro',
-    isa => Bool,
-    default => 1,
 );
 
 __PACKAGE__->meta->make_immutable;
