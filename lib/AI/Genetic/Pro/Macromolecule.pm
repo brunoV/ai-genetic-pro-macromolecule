@@ -162,14 +162,14 @@ sub _build__ga {
         -fitness         => $self->_actual_fitness,
     );
 
+    # Consistency check for variable_length and input lengths
     if (
-        !$self->variable_length         and
          $self->_has_initial_population and
+        !$self->variable_length         and
          $self->_seq_lengths_are_different
-    ) { die "initial population lengths cannot be different when variable_length is set to 0\n"; }
+    ) { die "Initial population lengths cannot be different when variable_length is set to 0.\n"; }
 
-    my $initial_population_size = scalar @{$self->initial_population} // 0;
-    if ( $initial_population_size > $self->population_size ) {
+    if ( $self->_initial_population_size > $self->population_size ) {
         warn "initial_population has more sequences than population_size allows\n"
     }
 
@@ -179,9 +179,21 @@ sub _build__ga {
         [ map { $self->_alphabet } (1 .. $self->length) ]
     );
 
-    $ga->inject([ map { [ split '', $_ ] } @{$self->initial_population} ]);
+    $ga->inject([ map { [ split '', $_ ] } @{$self->initial_population} ])
+        if $self->_has_initial_population;
 
     return $ga;
+}
+
+sub _initial_population_size {
+    my $self = shift;
+
+    if ($self->_has_initial_population) {
+        return scalar @{$self->initial_population};
+    }
+    else {
+        return 0;
+    }
 }
 
 sub _seq_lengths_are_different {
