@@ -114,4 +114,24 @@ foreach my $cmd ("history", "current_stats") {
 
 }
 
+# What happens when we call after-evolution methods before evolving?
+
+{
+    $gm = AI::Genetic::Pro::Macromolecule->new(
+        type => 'dna', fitness => sub { 1 }, length => 10,
+        population_size => 10,
+    );
+
+    is( $gm->generation, 0 );
+
+    is( ref $gm->current_stats, 'HASH' );
+    is_deeply( [ sort keys %{$gm->current_stats} ], [ qw(max mean min) ] );
+
+    my @pop = $gm->current_population;
+
+    is( @pop, 10 );
+    is_deeply( [ sort keys %{$pop[0]} ], [ qw(score seq) ] );
+
+}
+
 done_testing;
