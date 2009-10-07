@@ -111,7 +111,7 @@ sub _build__actual_terminate {
 
 Evolve the sequence population for the specified number of generations.
 Accepts an optional single C<Int> argument. If $n is 0 or undef, it will
-evolve undefinitely or C<terminate> returns true.
+evolve undefinitely or until C<terminate> returns true.
 
 =method generation
 
@@ -291,7 +291,7 @@ sub history {
 
 =method current_stats
 
-Returns a C<HashRef> with the minimum, maximum and mean score fore
+Returns a C<HashRef> with the minimum, maximum and mean score for
 the current generation.
 
     $m->current_stats;
@@ -517,7 +517,7 @@ __END__
 
     sub hydrophobicity {
         my $seq = shift;
-        my $score = f($seq)
+        my $score = f($seq);
 
         return $score;
     }
