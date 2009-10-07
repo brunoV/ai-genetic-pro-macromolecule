@@ -1,4 +1,7 @@
 package AI::Genetic::Pro::Macromolecule;
+
+# ABSTRACT: Genetic Algorithms to evolve DNA, RNA and Protein sequences
+
 use Moose;
 use MooseX::Types::Moose qw(Str Bool Int Num ArrayRef CodeRef);
 use AI::Genetic::Pro::Macromolecule::Types qw(AIGeneticPro Probability);
