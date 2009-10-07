@@ -145,11 +145,11 @@ has length => (
     lazy_build => 1,
 );
 
-
 has _ga => (
     is  => 'ro',
     isa => AIGeneticPro,
-    handles => [qw(evolve generation)],
+    init_arg => undef,
+    handles  => [qw(evolve generation)],
     lazy_build => 1,
 );
 
