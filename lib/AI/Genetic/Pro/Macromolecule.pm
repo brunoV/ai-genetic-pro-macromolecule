@@ -6,6 +6,7 @@ use AI::Genetic::Pro;
 use Moose::Util::TypeConstraints;
 use List::Util 'max';
 use Modern::Perl;
+use MooseX::Throwable;
 use namespace::autoclean;
 
 # AI::Genetic::Pro::Macromolecule - Genetic Algorithms to evolve protein, DNA and RNA sequences
