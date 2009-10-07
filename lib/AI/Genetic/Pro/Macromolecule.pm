@@ -9,7 +9,7 @@ use Modern::Perl;
 use MooseX::Throwable;
 use namespace::autoclean;
 
-# AI::Genetic::Pro::Macromolecule - Genetic Algorithms to evolve protein, DNA and RNA sequences
+# ABSTRACT: Genetic Algorithms to evolve protein, DNA and RNA sequences
 
 =attr fitness
 
