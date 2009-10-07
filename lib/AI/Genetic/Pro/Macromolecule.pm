@@ -9,7 +9,11 @@ use Modern::Perl;
 use MooseX::Throwable;
 use namespace::autoclean;
 
-# ABSTRACT: Genetic Algorithms to evolve protein, DNA and RNA sequences
+my %_alphabet_for = (
+    protein => [qw(A C D E F G H I K L M N P Q R S T V W Y)],
+    dna     => [qw(A C G T)],
+    rna     => [qw(A C G U)],
+);
 
 =attr fitness
 
@@ -181,9 +185,10 @@ sub _build__ga {
 
     if ($self->_has_terminate) { $ga->terminate($self->_actual_terminate) };
 
-    $ga->init(
-        [ map { $self->_alphabet } (1 .. $self->length) ]
-    );
+    $ga->init([
+        map { $_alphabet_for{ lc $self->type } }
+        (1 .. $self->length)
+    ]);
 
     $ga->inject([ map { [ split '', $_ ] } @{$self->initial_population} ])
         if $self->_has_initial_population;
@@ -333,23 +338,6 @@ sub current_population {
     return @population;
 }
 
-has _alphabet => (
-    is  => 'ro',
-    isa => ArrayRef,
-    lazy_build => 1,
-);
-
-our %alphabet_for = (
-    protein => [qw(A C D E F G H I K L M N P Q R S T V W Y)],
-    dna     => [qw(A C G T)],
-    rna     => [qw(A C G U)],
-);
-
-sub _build__alphabet {
-    my $self = shift;
-
-    return $alphabet_for{ lc($self->type) };
-}
 
 sub _build_length {
     my $self = shift;
