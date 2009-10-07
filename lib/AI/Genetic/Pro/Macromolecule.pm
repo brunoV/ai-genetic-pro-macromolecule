@@ -12,7 +12,7 @@ use namespace::autoclean;
 
 =attr fitness
 
-Accepts a CodeRef that should assign a numeric score to each string
+Accepts a C<CodeRef> that should assign a numeric score to each string
 sequence that it's passed to it as an argument. Required.
 
     sub fitness {
@@ -39,14 +39,14 @@ has fitness => (
 
 =attr terminate
 
-Accepts a CodeRef. It will be applied once at the end of each
+Accepts a C<CodeRef>. It will be applied once at the end of each
 generation. If returns true, evolution will stop, disregarding the
 generation steps passed to the C<evolve> method.
 
-The CodeRef should accept an C<AI::Genetic::Pro::Macromolecule> object
+The C<CodeRef> should accept an C<AI::Genetic::Pro::Macromolecule> object
 as argument, and should return either true or false.
 
-    sub terminate {
+    sub reached_max {
         my $m = shift;  # an AI::G::P::Macromolecule object
 
         my $highest_score = $m->fittest->{score};
@@ -56,6 +56,11 @@ as argument, and should return either true or false.
             return 1;
         }
     }
+
+    my $m = AI::Genetic::Pro::Macromolecule->new(
+        terminate => \&reached_max,
+        ...
+    );
 
 In the above example, evolution will stop the moment the top score in
 any generation exceeds the value 9000.
@@ -97,8 +102,8 @@ sub _build__actual_terminate {
     $m->evolve($n);
 
 Evolve the sequence population for the specified number of generations.
-If $n is 0 or undef, it will evolve undefinitely or C<terminate> returns
-true.
+Accepts an optional single C<Int> argument. If $n is 0 or undef, it will
+evolve undefinitely or C<terminate> returns true.
 
 =method generation
 
@@ -108,7 +113,7 @@ Returns the current generation number.
 
 =attr variable_length
 
-Decide whether the sequences can have different lengths. Accepts a Bool
+Decide whether the sequences can have different lengths. Accepts a C<Bool>
 value. Defaults to 1.
 
 =cut
@@ -121,7 +126,7 @@ has variable_length => (
 
 =attr length
 
-Manually set the allowed maximum length of the sequences.
+Manually set the allowed maximum length of the sequences, accepts C<Int>.
 
 This attribute is required unless an initial population is provided. In
 that case, C<length> will be set as equal to the length of the longest
@@ -207,17 +212,18 @@ sub _seq_lengths_are_different {
 
 =method fittest
 
-Returns a hash reference with the desired number of top scoring
+Returns an C<Array[HashRef]> with the desired number of top scoring
 sequences. The hash reference has two keys, 'seq' which points to the
 sequence string, and 'score' which points to the sequence's score.
 
     my @top_2 = $m->fittest(2);
-    # [
+    # (
     #     { seq => 'VIKP', score => 10 },
     #     { seq => 'VLKP', score => 9  },
-    # ]
+    # )
 
-When called with no arguments, it returns the top scoring sequence.
+When called with no arguments, it returns a C<HashRef> with the top
+scoring sequence.
 
     my $fittest = $m->fittest;
     # { seq => 'VIKP', score => 10 }
@@ -246,7 +252,7 @@ sub fittest {
 
 =method history
 
-Returns a hash reference with the minimum, maximum and mean score for
+Returns a C<HashRef> with the minimum, maximum and mean score for
 each generation.
 
     my $history = $m->history;
@@ -276,7 +282,7 @@ sub history {
 
 =method current_stats
 
-Returns a hash reference with the minimum, maximum and mean score fore
+Returns a C<HashRef> with the minimum, maximum and mean score fore
 the current generation.
 
     $m->current_stats;
@@ -294,15 +300,15 @@ sub current_stats {
 
 =method current_population
 
-Returns a list with all the sequences of the current generation and
-their scores, in no particular order.
+Returns an C<Array[HashRef]> with all the sequences of the current
+generation and their scores, in no particular order.
 
     my @seqs = $m->current_population;
-    # [
+    # (
     #     { seq => 'VIKP', score => 10 },
     #     { seq => 'VLKP', score => 9  },
     #     ...
-    # ]
+    # )
 
 =cut
 
@@ -370,8 +376,8 @@ has type => (
 
 =attr initial_population
 
-Sequences to add to the initial pool before evolving. Accepts an array
-reference of strings.
+Sequences to add to the initial pool before evolving. Accepts an
+C<ArrayRef[Str]>.
 
     my $m = AI::Genetic::Pro::Macromolecule->new(
         initial_population => ['ACGT', 'CAAC', 'GTTT'],
@@ -388,8 +394,8 @@ has initial_population => (
 
 =attr cache
 
-Accepts a Bool value. When true, score results for each sequence will be
-stored, to avoid costly and unnecesary recomputations. Set to 1 by
+Accepts a C<Bool> value. When true, score results for each sequence will
+be stored, to avoid costly and unnecesary recomputations. Set to 1 by
 default.
 
 =cut
@@ -402,7 +408,7 @@ has cache => (
 
 =attr mutation
 
-Mutation rate, a number between 0 and 1. Default is 0.05.
+Mutation rate, a C<Num> between 0 and 1. Default is 0.05.
 
 =cut
 
@@ -414,7 +420,7 @@ has mutation => (
 
 =attr crossover
 
-Crossover rate, a number between 0 and 1. Default is 0.95.
+Crossover rate, a C<Num> between 0 and 1. Default is 0.95.
 
 =cut
 
@@ -450,7 +456,7 @@ has parents => (
 
 =attr selection
 
-Defines how sequences are selected to crossover. It expects an ArrayRef:
+Defines how sequences are selected to crossover. It expects an C<ArrayRef>:
 
     selection => [ $type, @params ]
 
@@ -470,7 +476,7 @@ has selection => (
 
 =attr strategy
 
-Defines strategy of crossover operation. It expects an ArrayRef:
+Defines strategy of crossover operation. It expects an C<ArrayRef>:
 
     strategy => [ $strategy, @params ]
 
@@ -519,7 +525,7 @@ __END__
 
     sub hydrophobicity {
         my $seq = shift;
-        my $score = score($seq)
+        my $score = f($seq)
 
         return $score;
     }
@@ -543,7 +549,7 @@ aimed at easily evolving protein, DNA or RNA sequences using arbitrary
 fitness functions.
 
 Its purpose it to allow optimization of macromolecule sequences using
-Genetic Algorithms, with as little set up time as possible.
+Genetic Algorithms, with as little set up time and burdain as possible.
 
 Standing atop L<AI::Genetic::Pro>, it is reasonably fast and memory
 efficient. It is also highly customizable, although I've chosen what I
