@@ -110,8 +110,8 @@ sub _build__actual_terminate {
     $m->evolve($n);
 
 Evolve the sequence population for the specified number of generations.
-Accepts an optional single C<Int> argument. If $n is 0 or undef, it will
-evolve undefinitely or until C<terminate> returns true.
+Accepts an optional single C<Int> argument. If C<$n> is 0 or undef, it
+will evolve undefinitely or until C<terminate> returns true.
 
 =method generation
 
@@ -356,7 +356,8 @@ sub _build_length {
 
 =attr type
 
-Macromolecule type: protein, dna, or rna. Required.
+Macromolecule type. Can be either of: C<protein>, C<dna>, or C<rna>.
+Required.
 
 =cut
 
@@ -453,7 +454,7 @@ Defines how sequences are selected to crossover. It expects an C<ArrayRef>:
     selection => [ $type, @params ]
 
 See docs in L<AI::Genetic::Pro> for details on available selection
-strategies, parameters, and their meanings. Default is Roulette, in
+strategies, parameters, and their meanings. Default is C<Roulette>, in
 which at first the best individuals/chromosomes are selected. From this
 collection parents are selected with probability poportionaly to its
 fitness.
@@ -473,7 +474,7 @@ Defines strategy of crossover operation. It expects an C<ArrayRef>:
     strategy => [ $strategy, @params ]
 
 See docs in L<AI::Genetic::Pro> for details on available crossover
-strategies, parameters, and their meanings. Default is [ Points, 2 ], in
+strategies, parameters, and their meanings. Default is C<[ Points, 2 ]>, in
 which parents are crossed at 2 points and the best child is moved to the
 next generation.
 
@@ -522,7 +523,7 @@ __END__
         return $score;
     }
 
-    $m->evolve(10) # evolve for 10 generations;
+    $m->evolve(10); # evolve for 10 generations
 
     my $most_hydrophobic = $m->fittest->{seq};   # get the best sequence
     my $highest_score    = $m->fittest->{score}; # get top score
