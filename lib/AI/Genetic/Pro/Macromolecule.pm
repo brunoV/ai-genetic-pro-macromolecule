@@ -1,6 +1,6 @@
 package AI::Genetic::Pro::Macromolecule;
 
-# ABSTRACT: Genetic Algorithms to evolve DNA, RNA and Protein sequences
+# ABSTRACT: Optimization of DNA, RNA and Protein sequences using Genetic Algorithms
 
 use Moose;
 use MooseX::Types::Moose qw(Str Bool Int Num ArrayRef CodeRef);
